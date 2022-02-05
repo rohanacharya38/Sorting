@@ -1,6 +1,6 @@
-if(!(Test-Path("..\bin\")))
+if(!(Test-Path("..\bin")))
 {
-        New-Item -Itemtype Directory "bin"
+        New-Item -Itemtype Directory "..\bin"
 }
 $source_name = "..\code\main.c"
 $executable_name = "sort_viz.exe"
