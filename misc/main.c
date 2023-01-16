@@ -81,15 +81,15 @@ int main(int argc, char **argv)
         {
             if (event.type == SDL_QUIT)
                 is_running = false;
-           /* if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+            if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
             {
                 thread_created = false;
                 //need sth like thread terminate here
-
+                thrd_terminate(thread);
                 array_scramble();
                 once = false;
                 esc = true;
-            }*/
+            }
             // if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_LSHIFT)
             // {
             //     thread_created = false;

@@ -45,6 +45,11 @@ static inline int thrd_join(thrd_t thr, int *res) {
 		return thrd_success;
 	return thrd_error;
 }
+static inline int thrd_terminate(thrd_t thr) {
+	if (TerminateThread(thr, 0))
+		return thrd_success;
+	return thrd_error;
+}
 
 static inline void thrd_sleep_millisecs(uint32_t millisecs) {
 	Sleep(millisecs);
@@ -201,7 +206,6 @@ static inline void thrd_sleep_millisecs(uint32_t millisecs) {
 	uint32_t nano_secs = 1000000 * millisecs;
 	thrd_sleep(&(struct timespec) { .tv_sec = secs, .tv_nsec = nano_secs }, NULL);
 }
-
 #else
 #	error Unsupported Operating System
 #endif
