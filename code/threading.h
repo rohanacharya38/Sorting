@@ -91,6 +91,7 @@ static inline int mtx_unlock(mtx_t *mutex) {
 	return thrd_error;
 }
 #elif defined(__APPLE__)
+
 #include <pthread.h>
 static inline void thrd_sleep_millisecs(uint32_t millisecs) {
 	uint32_t secs = millisecs / 1000;
