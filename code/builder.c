@@ -69,7 +69,7 @@ const char *bash_string = "# build script fors SDL in bash using gcc\n\
 if [ ! -d \"../bin\" ]; then\n\
   mkdir \"../bin\"\n\
 fi\n\
-cd ../bin\
+cd ../bin\n\
 source_name=\"../code/main.c ../code/sorts.c\"\n\
 executable_name=\"sort_viz\"\n\
 # Compile the program\n\
