@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 #ifdef _WIN32
 #ifdef _MSC_VER
 const char *pwsh_string = "if(!(Test-Path(\"..\\bin\")))\n\

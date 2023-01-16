@@ -1,6 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <string.h>
 void bubble_sort(SDL_Rect *array, int size);
 void insertion_sort(SDL_Rect *array, int size);
 void selection_sort(SDL_Rect *array, int size);
