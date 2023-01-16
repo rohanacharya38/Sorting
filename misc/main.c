@@ -1,4 +1,3 @@
-const char *display_str="0.bubble_sort\n1.insertion_sort\n2.selection_sort\n3.quick_sort\n4.merge_sort_s\n5.heap_sort\n";
 
 #include "threading.h"
 #include "sorts.h"
@@ -229,40 +228,4 @@ void render_string(const char *str, const int length, SDL_Texture *img_texture, 
         SDL_RenderCopy(renderer, img_texture, &char_rect, &d_rect);
         d_rect.x += d_rect.w;
     }
-}
-int32_t switch_function(void *keycode)
-{
-SDL_Scancode key=*((SDL_Scancode *)keycode);
-switch (key)
-
-{
-case SDL_SCANCODE_0:
-case SDL_SCANCODE_KP_0:
-bubble_sort(sRects, RECT_COUNT);
-break;
-case SDL_SCANCODE_1:
-case SDL_SCANCODE_KP_1:
-insertion_sort(sRects, RECT_COUNT);
-break;
-case SDL_SCANCODE_2:
-case SDL_SCANCODE_KP_2:
-selection_sort(sRects, RECT_COUNT);
-break;
-case SDL_SCANCODE_3:
-case SDL_SCANCODE_KP_3:
-quick_sort(sRects, RECT_COUNT);
-break;
-case SDL_SCANCODE_4:
-case SDL_SCANCODE_KP_4:
-merge_sort_s(sRects, RECT_COUNT);
-break;
-case SDL_SCANCODE_5:
-case SDL_SCANCODE_KP_5:
-heap_sort(sRects, RECT_COUNT);
-break;
-default:
-break;
-}
-thread_created=false;
-return 0;
 }
