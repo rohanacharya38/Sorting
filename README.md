@@ -1,3 +1,3 @@
 # Sorting
 Attempt to visualize sorting methods in C using SDL
-For buid script: code->build.ps1
+For buid script : compile code->builder.c then run builder.exe
