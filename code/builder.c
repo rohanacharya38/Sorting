@@ -78,6 +78,21 @@ gcc  $source_name -w -lm -lSDL2 -o $executable_name\n\
 # Run the program\n\
 ./sort_viz\n\
 ";
+#elif __APPLE__
+const char *bash_string = "# build script fors SDL in bash using gcc\n\
+#!/bin/bash\n\
+if [ ! -d \"../bin\" ]; then\n\
+  mkdir \"../bin\"\n\
+fi\n\
+cd ../bin\n\
+source_name=\"../code/main.c ../code/sorts.c\"\n\
+executable_name=\"sort_viz\"\n\
+# Compile the program\n\
+gcc  $source_name -w -lm -lSDL2 -o $executable_name\n\
+\n\
+# Run the program\n\
+./sort_viz\n\
+";
 #endif
 int main()
 {
@@ -204,6 +219,11 @@ int main()
     system("powershell -ExecutionPolicy Bypass -File ../code/buildgcc.ps1 &");
 #endif
 #elif __linux__
+    FILE *script = fopen("../code/build.sh", "w");
+    fwrite(bash_string, 1, strlen(bash_string), script);
+    fclose(script);
+    system("bash ../code/build.sh &");
+#elif __APPLE__
     FILE *script = fopen("../code/build.sh", "w");
     fwrite(bash_string, 1, strlen(bash_string), script);
     fclose(script);

@@ -90,7 +90,14 @@ static inline int mtx_unlock(mtx_t *mutex) {
 		return thrd_success;
 	return thrd_error;
 }
-
+#elif defined(__APPLE__)
+#include <pthread.h>
+static inline void thrd_sleep_millisecs(uint32_t millisecs) {
+	uint32_t secs = millisecs / 1000;
+	millisecs -= 1000 * secs;
+	uint32_t nano_secs = 1000000 * millisecs;
+	thrd_sleep(&(struct timespec) { .tv_sec = secs, .tv_nsec = nano_secs }, NULL);
+}
 #else
 #include <threads.h>
 
