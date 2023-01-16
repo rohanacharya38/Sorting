@@ -90,16 +90,7 @@ static inline int mtx_unlock(mtx_t *mutex) {
 		return thrd_success;
 	return thrd_error;
 }
-#elif defined(__APPLE__)
-
-#include <pthread.h>
-static inline void thrd_sleep_millisecs(uint32_t millisecs) {
-	uint32_t secs = millisecs / 1000;
-	millisecs -= 1000 * secs;
-	uint32_t nano_secs = 1000000 * millisecs;
-	thrd_sleep(&(struct timespec) { .tv_sec = secs, .tv_nsec = nano_secs }, NULL);
-}
-#else
+#elif defined(__GNUC__)
 #include <threads.h>
 
 static inline void thrd_sleep_millisecs(uint32_t millisecs) {
@@ -201,6 +192,14 @@ static inline uint64_t clock_frequency() {
 static inline float clock_time(uint64_t counts) {
 	uint64_t freq = clock_frequency();
 	return (1000000.0f * (float)(counts) / (float)freq) / 10000.0f;
+}
+#elif defined(__APPLE__)
+#include <pthread.h>
+static inline void thrd_sleep_millisecs(uint32_t millisecs) {
+	uint32_t secs = millisecs / 1000;
+	millisecs -= 1000 * secs;
+	uint32_t nano_secs = 1000000 * millisecs;
+	thrd_sleep(&(struct timespec) { .tv_sec = secs, .tv_nsec = nano_secs }, NULL);
 }
 
 #else
