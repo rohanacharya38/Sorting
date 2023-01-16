@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-//
-//
 
 //defines
 #define SCREEN_WIDTH 1350
