@@ -172,34 +172,41 @@ int main()
     char *main_data;
     fseek(mainptr, 0L, SEEK_END);
     main_fsize = ftell(mainptr);
-    fsize += main_fsize;
     fseek(mainptr, 0L, SEEK_SET);
+    main_data = malloc(main_fsize+1 );
+    memset(main_data, 0, main_fsize+1);
+    fread(main_data, 1, main_fsize, mainptr);
+    fclose(mainptr);
+    main_data[main_fsize] = '\0';
     fsize += strlen(data);
+    fsize += strlen(main_data);
     for (int i = 0; i < rows; i++)
     {
         fsize += strlen(functions[i]);
     }
     fsize += rows * strlen("case SDL_SCANCODE_0:\ncase SDL_SCANCODE_KP_0:\nbreak;\n");
     fsize += strlen("int32_t switch_function(void *keycode)\n{\nSDL_Scancode key=*((SDL_Scancode *)keycode);\nswitch (key)\n\n{\ndefault:\nbreak;\n}\nthread_created=false\nreturn 0;\n}\n");
-    main_data = malloc(main_fsize + 100);
-    memset(main_data, 0, main_fsize + 100);
-    fread(main_data, 1, main_fsize, mainptr);
-    fclose(mainptr);
-    main_data[main_fsize] = '\0';
-    char *final_str = malloc(fsize + 100);
-    memset(final_str, 0, fsize + 100);
+    char *final_str = malloc(fsize + 1000);
+    memset(final_str, 0, fsize + 1000);
     final_index += sprintf(final_str, "const char *display_str=\"");
     for (int i = 0; i < rows; i++)
     {
         final_index += sprintf(final_str + final_index, "%d.%s\\n", i, functions[i]);
     }
-    final_index += sprintf(final_str + final_index, "\";\n%s\n", main_data);
-    final_index += sprintf(final_str + final_index, "int32_t switch_function(void *keycode)\n{\nSDL_Scancode key=*((SDL_Scancode *)keycode);\nswitch (key)\n\n{\n");
+    final_index += sprintf(final_str + final_index, "\";\n");
+    final_index+= sprintf(final_str+final_index,"const char *strs[]={");
+    for (int i = 0; i < rows; i++)
+    {
+        final_index+=sprintf(final_str+final_index,"\"%s\",",functions[i]);
+    }
+    final_index+= sprintf(final_str+final_index,"};\n");
+    final_index += snprintf(final_str + final_index,main_fsize,"%s", main_data);
+    final_index += sprintf(final_str + final_index, "\nint32_t switch_function(void *keycode)\n{\nSDL_Scancode key=*((SDL_Scancode *)keycode);\nswitch (key)\n\n{\n");
     for (int i = 0; i < rows; i++)
     {
         final_index += sprintf(final_str + final_index, "case SDL_SCANCODE_%d:\ncase SDL_SCANCODE_KP_%d:\n%s(sRects, RECT_COUNT);\nbreak;\n", i, i, functions[i]);
     }
-    final_index += snprintf(final_str + final_index, strlen("default:\nbreak;\n}\nthread_created=false;\nreturn 0;\n}\n"), "default:\nbreak;\n}\nthread_created=false;\nreturn 0;\n}\n");
+    final_index += sprintf(final_str + final_index, "default:\nbreak;\n}\nthread_created=false;\nreturn 0;\n}\n");
     final_str[final_index] = '\0';
     fwrite(final_str, 1, final_index - 1, finalptr);
     fclose(finalptr);

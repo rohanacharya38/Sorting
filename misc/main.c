@@ -7,54 +7,59 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-
-//defines
-#define SCREEN_WIDTH 1350
-#define SCREEN_HEIGHT 700
-#define RECT_COUNT 190
-#define sWIDTH 6
-#define PADDING 1
-
-//emum for bool
+void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture);
+// defines
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+#define RECT_COUNT 300
+const float sWIDTH = (SCREEN_WIDTH) / RECT_COUNT;
+// emum for bool
 typedef enum
 {
     false,
     true
 } bool;
 
-//global variables
-SDL_Rect sRects[RECT_COUNT];
-//declaring a iterator to highlight the rect we currently are in
-//we need to store 2 values which we are comparing so an array would be good
+// global variables
+SDL_FRect sRects[RECT_COUNT];
+// declaring a iterator to highlight the rect we currently are in
+// we need to store 2 values which we are comparing so an array would be good
 int iterator[2];
 /*main idea we will take the integer number as height of rects and sort them accordingly*/
-//a boolean to know weather thread finishined it work
+// a boolean to know weather thread finishined it work
 bool thread_created = false;
-
 
 void render_string(const char *, const int, SDL_Texture *, SDL_Renderer *);
 SDL_Rect get_char_rect_cood(const char);
 SDL_Texture *load_img(char *, SDL_Renderer *);
-void array_scramble(void);
 /*since srect is global so no need for arguments but for threads we need to take void * argument
 most likely we will pass NULL*/
 /*Looks like thrd_create function needs a function pointer of return type int32_t thrd_so */
 
-//thread 1
-//TODO:Add other sorts in other threads
+// thread 1
+// TODO:Add other sorts in other threads
 int32_t switch_function(void *keycode);
+SDL_Scancode key;
 int main(int argc, char **argv)
 {
-    //we need random numbers for height so lets seed them
+    // we need random numbers for height so lets seed them
 
     srand((unsigned int)time(NULL));
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_Window *window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
+    SDL_Window *window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     SDL_Texture *img_texture = load_img("../misc/font.png", renderer);
     const int display_text_len = strlen(display_str);
     /*We are setting up the values for all rectangels in sRects Array*/
-    array_scramble();
+    // linearly vary height of rects
+    for (int i = 0; i < RECT_COUNT; i++)
+    {
+        sRects[i].x = i * sWIDTH+ 100;
+        sRects[i].y = SCREEN_HEIGHT;
+        sRects[i].w = sWIDTH;
+        sRects[i].h = -(RECT_COUNT - i) * ((SCREEN_HEIGHT) / RECT_COUNT) + 20;
+    }
+
     bool is_running = true;
     bool once = false;
     thrd_t thread;
@@ -68,12 +73,11 @@ int main(int argc, char **argv)
         {
             for (int i = 0; i < RECT_COUNT; i++)
             {
-                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-                SDL_RenderFillRect(renderer, &sRects[i]);
+                SDL_SetRenderDrawColor(renderer, 144,238,144, 255);
+                SDL_RenderFillRectF(renderer, &sRects[i]);
                 SDL_RenderPresent(renderer);
-               SDL_Delay(2);
+                SDL_Delay(2);
             }
-            array_scramble();
             once = false;
         }
 
@@ -84,27 +88,20 @@ int main(int argc, char **argv)
             if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
             {
                 thread_created = false;
-                //need sth like thread terminate here
+                // need sth like thread terminate here
                 thrd_terminate(thread);
-                array_scramble();
                 once = false;
                 esc = true;
             }
-            // if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_LSHIFT)
-            // {
-            //     thread_created = false;
-            //     once = false;
-            //     esc = true;
-            // }
             if (!thread_created && !once)
             {
-                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_SetRenderDrawColor(renderer,169,169,169, 255);
                 SDL_RenderClear(renderer);
                 render_string(display_str, display_text_len, img_texture, renderer);
                 switch (event.type)
                 {
                 case SDL_KEYDOWN:
-                SDL_Scancode key=event.key.keysym.scancode;
+                    key = event.key.keysym.scancode;
                     switch (key)
                     {
                     case SDL_SCANCODE_0:
@@ -127,8 +124,10 @@ int main(int argc, char **argv)
                     case SDL_SCANCODE_KP_7:
                     case SDL_SCANCODE_KP_8:
                     case SDL_SCANCODE_KP_9:
-                        thread_created=true;
-                        esc=false;
+                        thread_created = true;
+                        esc = false;
+
+                        randomize_array(renderer, img_texture);
                         thrd_create(&thread, switch_function, (void *)&key);
                         break;
                     default:
@@ -141,17 +140,22 @@ int main(int argc, char **argv)
             }
         }
 
-        //rendering one by one is a pain in the ass so we are goiing this way
+        // rendering one by one is a pain so we are goiing this way
         if (thread_created)
         {
             once = true;
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_SetRenderDrawColor(renderer,169,169,169, 255);
             SDL_RenderClear(renderer);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            SDL_RenderFillRects(renderer, sRects, RECT_COUNT);
+            render_string("Sorting...", strlen("Sorting..."), img_texture, renderer);
+            SDL_SetRenderDrawColor(renderer, 93, 173, 226, 255);
+            SDL_RenderFillRectsF(renderer, sRects, RECT_COUNT);
+            if(iterator[0] != -1 && iterator[1] != -1)
+            {
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderFillRect(renderer, &sRects[iterator[0]]);
-            SDL_RenderFillRect(renderer, &sRects[iterator[1]]);
+            SDL_RenderFillRectF(renderer, &sRects[iterator[0]]);
+            SDL_RenderFillRectF(renderer, &sRects[iterator[1]]);
+
+            }
             SDL_Delay(2);
         }
 
@@ -159,22 +163,6 @@ int main(int argc, char **argv)
     }
 
     return 0;
-}
-void array_scramble(void)
-{
-    sRects[0].x = PADDING;
-    sRects[0].w = sWIDTH;
-    sRects[0].y = SCREEN_HEIGHT - 20;
-    sRects[0].h = -((rand() % (SCREEN_HEIGHT - 10)) + 10);
-    for (int i = 1; i < RECT_COUNT; i++)
-    {
-
-        //need same width for all rectangles so better #define them
-        sRects[i].w = sWIDTH;
-        sRects[i].x = sRects[i - 1].x + sWIDTH + PADDING;
-        sRects[i].y = SCREEN_HEIGHT - 20;
-        sRects[i].h = -((rand() % (SCREEN_HEIGHT - 4)) + 4);
-    }
 }
 SDL_Texture *load_img(char *image_path, SDL_Renderer *renderer)
 {
@@ -227,5 +215,50 @@ void render_string(const char *str, const int length, SDL_Texture *img_texture, 
         char_rect = get_char_rect_cood(str[i]);
         SDL_RenderCopy(renderer, img_texture, &char_rect, &d_rect);
         d_rect.x += d_rect.w;
+    }
+}
+
+// void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture   )
+// {
+//     for (int i = 0; i < RECT_COUNT; i++)
+//     {
+//         int j = rand() % RECT_COUNT;
+//         float temp = sRects[i].h;
+//         sRects[i].h = sRects[j].h;
+//         sRects[j].h = temp;
+//         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+//         SDL_RenderClear(renderer);
+//         render_string("Shuffling...", strlen("Shuffling..."), img_texture, renderer);
+//         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+//         SDL_RenderFillRectsF(renderer, sRects, RECT_COUNT);
+//         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+//         SDL_RenderFillRectF(renderer, &sRects[i]);
+//         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+//         SDL_RenderFillRectF(renderer,&sRects[j]);
+//         SDL_RenderPresent(renderer);
+//         SDL_Delay(2);
+//     }
+// }
+
+void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture)
+{
+    for (int i = 0; i < RECT_COUNT; i++)
+    {
+        int j = rand() % RECT_COUNT;
+        float temp = sRects[i].h;
+        sRects[i].h = sRects[j].h;
+        sRects[j].h = temp;
+        SDL_SetRenderDrawColor(renderer,169,169,169, 255);
+
+        SDL_RenderClear(renderer);
+        render_string("Shuffling...", strlen("Shuffling..."), img_texture, renderer);
+        SDL_SetRenderDrawColor(renderer, 93, 173, 226, 255);
+        SDL_RenderFillRectsF(renderer, sRects, RECT_COUNT);
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderFillRectF(renderer, &sRects[i]);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_RenderFillRectF(renderer, &sRects[j]);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(3);
     }
 }
