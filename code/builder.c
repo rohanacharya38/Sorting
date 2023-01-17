@@ -7,16 +7,38 @@ const char *pwsh_string = "if(!(Test-Path(\"..\\bin\")))\n\
 {\n\
         New-Item -Itemtype Directory \"..\\bin\"\n\
 }\n\
+if(!(Test-Path(\"..\\msvc\")))\n\
+{\n\
+        New-Item -Itemtype Directory \"..\\msvc\"\n\
+        $SDL2 = \"https://www.libsdl.org/release/SDL2-devel-2.0.12-VC.zip\"\n\
+        Push-Location ..\\msvc\n\
+        New-Item -Itemtype Directory \"lib\"\n\
+        New-Item -Itemtype Directory \"include\"\n\
+        New-Item -Itemtype Directory \"include/SDL2\"\n\
+        #curl SDL2 download link\n\
+        Invoke-WebRequest -Uri $SDL2 -OutFile \"SDL2.zip\"\n\
+        #extract SDL2\n\
+        Expand-Archive SDL2.zip\n\
+        #copy SDL2.dll to bin\n\
+        Push-Location \".\\SDL2\"\n\
+        Copy-Item \"SDL2-2.0.12\\lib\\x64\\SDL2.dll\" ..\\..\\bin\n\
+        #copy lib files to lib folder\n\
+        Copy-Item \"SDL2-2.0.12\\lib\\x64\\*.lib\" ..\\lib\n\
+        Copy-Item \"SDL2-2.0.12\\lib\\x64\\*.dll\" ..\\lib\n\
+        #copy include files to include folder\n\
+        Copy-Item \"SDL2-2.0.12\\include\\*.h\" \"..\\include\\SDL2\"\n\
+        Pop-Location\n\
+}\n\
 $source_name = \"..\\code\\main.c\",\"..\\code\\sorts.c\"\n\
 $executable_name = \"sort_viz.exe\"\n\
-$lib_path =\"..\\lib\\\"\n\
-$include_path =\"..\\include\"\n\
+$lib_path =\"..\\msvc\\lib\\\"\n\
+$include_path =\"..\\msvc\\include\"\n\
 $compiler_flags = \"/nologo\",\"/EHsc\",\"/Zi\" ,\"/FC\"\n\
 $libraries = \"SDL2main.lib\",\"SDL2.lib\", \"user32.lib\", \"shell32.lib\", \"gdi32.lib\"\n\
 Push-Location ..\\bin\n\
 if(!(Test-Path(\"SDL2.dll\")))\n\
 {\n\
-        Copy-Item \"../lib/SDL2.dll\"\n\
+        Copy-Item \"../msvc/lib/SDL2.dll\"\n\
 }\n\
 cl  $source_name /Fe$executable_name $compiler_flags /I$include_path /link /LIBPATH:$lib_path $libraries /NODEFAULTLIB:msvcrt.lib /SUBSYSTEM:CONSOLE\n\
 ./sort_viz.exe";
