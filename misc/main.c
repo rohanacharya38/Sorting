@@ -1,12 +1,14 @@
 
 #include "threading.h"
 #include "sorts.h"
+#include "font.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
+
 void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture);
 // defines
 #define SCREEN_WIDTH 800
@@ -49,6 +51,11 @@ int main(int argc, char **argv)
     SDL_Window *window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     SDL_Texture *img_texture = load_img("../misc/font.png", renderer);
+    STBTTF_Font *font = STBTTF_OpenFont(renderer, "../misc/font.ttf", 19);
+    if(font==NULL) {
+        printf("Error: couldn't open font file");
+        return -1;
+    }
     const int display_text_len = strlen(display_str);
     /*We are setting up the values for all rectangels in sRects Array*/
     // linearly vary height of rects
@@ -97,7 +104,9 @@ int main(int argc, char **argv)
             {
                 SDL_SetRenderDrawColor(renderer,169,169,169, 255);
                 SDL_RenderClear(renderer);
-                render_string(display_str, display_text_len, img_texture, renderer);
+               // render_string(display_str, display_text_len, img_texture, renderer);
+                SDL_SetRenderDrawColor(renderer, 144,238,144, 255);
+                STBTTF_RenderText(renderer,font,0,19,display_str);
                 switch (event.type)
                 {
                 case SDL_KEYDOWN:
