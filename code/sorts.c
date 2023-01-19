@@ -1,4 +1,4 @@
-#include "sorts.h"
+#include "headers/sorts.h"
 #include <SDL2/SDL.h>
 int *iterators;
 int globals_exchg(int *iterator)

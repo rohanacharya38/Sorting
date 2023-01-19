@@ -240,7 +240,7 @@ int main()
     FILE *script = fopen("../code/build.ps1", "w");
     fwrite(pwsh_string, 1, strlen(pwsh_string), script);
     fclose(script);
-    system("powershell -ExecutionPolicy Bypass -File ../code/build.ps1 &");
+    system("echo powershell -ExecutionPolicy Bypass -File ../code/build.ps1 &");
 #elif __GNUC__
     FILE *script = fopen("../code/buildgcc.ps1", "w");
     fwrite(gcc_win_str, 1, strlen(gcc_win_str), script);
