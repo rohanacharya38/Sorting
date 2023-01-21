@@ -1,7 +1,7 @@
 
-#include "threading.h"
-#include "sorts.h"
-#include "font.h"
+#include "headers/threading.h"
+#include "headers/sorts.h"
+#include "headers/font.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <SDL2/SDL.h>

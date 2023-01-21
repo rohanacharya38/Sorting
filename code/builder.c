@@ -62,7 +62,7 @@ Copy-Item \"SDL2-2.0.12\\x86_64-w64-mingw32\\lib\\*.lib\" .\\lib\n\
 Copy-Item \"SDL2-2.0.12\\x86_64-w64-mingw32\\lib\\*.la\" .\\lib\n\
 Copy-Item \"SDL2-2.0.12\\x86_64-w64-mingw32\\lib\\*.a\" .\\lib\n\
 #copy include files to include folder\n\
-Copy-Item \"SDL2-2.0.12\\x86_64-w64-mingw32\\include\\SDL2\" .\\include\n\
+Copy-Item \"SDL2-2.0.12\\x86_64-w64-mingw32\\include\\SDL2\" .\\include -Recurse\n\
 Pop-Location\n\
 }\n\
 if(!(Test-Path(\"..\\bin\")))\n\
@@ -83,7 +83,7 @@ $executable_name = \"sort_viz.exe\"\n\
 $lib_path =\"..\\gcc\\lib\\\"\n\
 $include_path =\"..\\gcc\\include\"\n\
 #gcc compiler flags\n\
-gcc -o $executable_name $source_name -I..\\include\\gcc -L..\\lib\\ -lmingw32 -lSDL2main -lSDL2\n";
+gcc -o $executable_name $source_name -I$include_path -L$lib_path -lmingw32 -lSDL2main -lSDL2\n";
 #endif
 #elif __linux__
 const char *bash_string = "# build script fors SDL in bash using gcc\n\
