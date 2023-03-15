@@ -3,12 +3,13 @@
 #include "headers/sorts.h"
 #include "headers/font.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "headers/stb_image.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
 
+const char *display_str="1.Bubble Sort\n2.Insertion Sort\n3.Selection Sort\n4.Merge Sort\n5.Heap Sort"
 void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture);
 // defines
 #define SCREEN_WIDTH 800
@@ -270,4 +271,34 @@ void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture)
         SDL_RenderPresent(renderer);
         SDL_Delay(3);
     }
+}
+
+int32_t switch_function(void *keycode)
+{
+    SDL_Scancode* key= (SDL_SCANCODE*) keycode;
+    switch(key)
+    {
+        case SDL_SCANCODE_0:
+            bubble_sort(sRects,RECT_COUNT);
+            break;
+        case SDL_SCANCODE_1:
+            insertion_sort(sRects,RECT_COUNT);
+            break;
+        case SDL_SCANCODE_2:
+            selection_sort(sRects,RECT_COUNT);
+            break;
+        case SDL_SCANCODE_3:
+            quick_sort(sRects,RECT_COUNT);
+            break;
+        case SDL_SCANCODE_4:
+            merge_sort_s(sRects,RECT_COUNT);
+            break;
+        case SDL_SCANCODE_5:
+            heap_sort(sRects,RECT_COUNT);
+            break;
+        default:
+        break;
+
+    }
+
 }
