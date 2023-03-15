@@ -87,8 +87,8 @@ $include_path =\"..\\gcc\\include\"\n\
 gcc -o $executable_name $source_name -I$include_path -L$lib_path -lmingw32 -lSDL2main -lSDL2\n";
 #endif //end of compilers for windows
 #elif __linux__  //only gcc for linux
-const char *bash_string = "# build script fors SDL in bash using gcc\n\
-#!/bin/bash\n\
+const char *bash_string = "#!/bin/bash\n\
+# build script fors SDL in bash using gcc\n\
 if [ ! -d \"../bin\" ]; then\n\
   mkdir \"../bin\"\n\
 fi\n\
