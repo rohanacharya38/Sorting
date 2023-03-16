@@ -93,7 +93,7 @@ if [ ! -d \"../bin\" ]; then\n\
   mkdir \"../bin\"\n\
 fi\n\
 cd ../bin\n\
-source_name=\"../code/main.c ../code/sorts.c\",\"..\\code\\font.c\"\n\
+source_name=\"../code/main.c ../code/sorts.c\" \"../code/font.c\"\n\
 executable_name=\"sort_viz\"\n\
 # Compile the program\n\
 gcc  $source_name -w -lm -lSDL2 -o $executable_name\n\

@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <time.h>
 
-const char *display_str="1.Bubble Sort\n2.Insertion Sort\n3.Selection Sort\n4.Merge Sort\n5.Heap Sort"
+const char *display_str="1.Bubble Sort\n2.Insertion Sort\n3.Selection Sort\n4.Merge Sort\n5.Heap Sort";
 void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture);
 // defines
 #define SCREEN_WIDTH 800
@@ -275,8 +275,8 @@ void randomize_array(SDL_Renderer *renderer, SDL_Texture *img_texture)
 
 int32_t switch_function(void *keycode)
 {
-    SDL_Scancode* key= (SDL_SCANCODE*) keycode;
-    switch(key)
+    SDL_Scancode* key= (SDL_Scancode*) keycode;
+    switch(*key)
     {
         case SDL_SCANCODE_0:
             bubble_sort(sRects,RECT_COUNT);
