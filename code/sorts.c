@@ -1,10 +1,22 @@
 #include "headers/sorts.h"
 #include <SDL2/SDL.h>
 int *iterators;
-int globals_exchg(int *iterator)
+bool *thrd_created;
+uint32_t *delay;
+uint32_t delayTime;
+
+int globals_exchg(int *iterator, bool *is_thrd_created, uint32_t *delay_time)
 {
     iterators = iterator;
+    thrd_created = is_thrd_created;
+    delay = delay_time;
     return 0;
+}
+static inline void Delay_Function(const unsigned int delay_time)
+{
+    delayTime = SDL_GetTicks();
+    SDL_Delay(delay_time);
+    *delay += (SDL_GetTicks() - delayTime - 10);
 }
 void bubble_sort(SDL_FRect *array, int size)
 {
@@ -21,9 +33,10 @@ void bubble_sort(SDL_FRect *array, int size)
             }
             iterators[0] = j;
             iterators[1] = j + 1;
-            SDL_Delay(2);
+            Delay_Function(1);
         }
     }
+    *thrd_created = false;
 }
 
 void insertion_sort(SDL_FRect *array, int size)
@@ -39,11 +52,12 @@ void insertion_sort(SDL_FRect *array, int size)
             j--;
             iterators[0] = j;
             iterators[1] = i;
-            SDL_Delay(2);
+            Delay_Function(1);
         }
 
         array[j + 1].h = temp;
     }
+    *thrd_created = false;
 }
 
 void selection_sort(SDL_FRect *array, int size)
@@ -60,59 +74,67 @@ void selection_sort(SDL_FRect *array, int size)
             }
             iterators[0] = min;
             iterators[1] = j;
-            SDL_Delay(2);
+            Delay_Function(1);
         }
         temp = array[i].h;
         array[i].h = array[min].h;
         array[min].h = temp;
     }
+    *thrd_created = false;
 }
 
-void quick_sort(SDL_FRect *array, int size)
+void q_sort(SDL_FRect *array, int size)
 {
-    //set both iterators to -1
+    // set both iterators to -1
     iterators[0] = -1;
     iterators[1] = -1;
 
-    int i, j, pivot, temp;
+    int i, j;
+    float  pivot, temp;
     if (size < 2)
     {
         return;
     }
     pivot = array[size / 2].h;
-    for (i = 0, j = size - 1;; i++, j--)
+    for (i = 0, j = size - 1; ;i++, j--)
     {
         while (array[i].h < pivot)
         {
             i++;
-            iterators[0]=i;
-            iterators[1]=size/2;
-            SDL_Delay(2);
+            iterators[0] = i;
+            iterators[1] = size / 2;
+            Delay_Function(2);
         }
-        while (array[j].h > pivot)
+        while (j>0 && array[j].h > pivot)
         {
-            iterators[0]=j;
-            iterators[1]=size/2;
+            iterators[0] = j;
+            iterators[1] = size / 2;
             j--;
-            SDL_Delay(2);
+            Delay_Function(2);
         }
         if (i >= j)
         {
             break;
         }
+        iterators[0] = i;
+        iterators[1] = j;
         temp = array[i].h;
         array[i].h = array[j].h;
         array[j].h = temp;
-        SDL_Delay(2);
+        Delay_Function(2);
     }
-    SDL_Delay(2);
-    quick_sort(array, i);
-    quick_sort(array + i, size - i);
+    Delay_Function(2);
+    q_sort(array, i);
+    q_sort(array + i, size - i);
 }
-
+void quick_sort(SDL_FRect *array, int size)
+{
+    q_sort(array, size);
+    *thrd_created = false;
+}
 void merge(SDL_FRect *array, int left, int middle, int right)
 {
-    
+
     int i, j, k;
     int n1 = middle - left + 1;
     int n2 = right - middle;
@@ -121,20 +143,20 @@ void merge(SDL_FRect *array, int left, int middle, int right)
     for (i = 0; i < n1; i++)
     {
         left_array[i].h = array[left + i].h;
-        SDL_Delay(2);
+        Delay_Function(2);
     }
     for (j = 0; j < n2; j++)
     {
         right_array[j].h = array[middle + 1 + j].h;
-        SDL_Delay(2);
+        Delay_Function(2);
     }
     i = 0;
     j = 0;
     k = left;
     while (i < n1 && j < n2)
     {
-        iterators[0]=i;
-        iterators[1]=j;
+        iterators[0] = i;
+        iterators[1] = j;
         if (left_array[i].h <= right_array[j].h)
         {
             array[k].h = left_array[i].h;
@@ -146,7 +168,7 @@ void merge(SDL_FRect *array, int left, int middle, int right)
             j++;
         }
         k++;
-        SDL_Delay(2);
+        Delay_Function(2);
     }
 
     while (i < n1)
@@ -155,14 +177,14 @@ void merge(SDL_FRect *array, int left, int middle, int right)
         i++;
         k++;
 
-        SDL_Delay(2);
+        Delay_Function(2);
     }
     while (j < n2)
     {
         array[k].h = right_array[j].h;
         j++;
         k++;
-        SDL_Delay(2);
+        Delay_Function(2);
     }
     free(left_array);
     free(right_array);
@@ -170,23 +192,26 @@ void merge(SDL_FRect *array, int left, int middle, int right)
 
 void merge_sort(SDL_FRect *array, int left, int right)
 {
-    //set both iterators to -1
+    // set both iterators to -1
     iterators[0] = -1;
     iterators[1] = -1;
-    
+
     if (left < right)
     {
-        int middle = (left+right) / 2;
+        int middle = (left + right) / 2;
         merge_sort(array, left, middle);
         merge_sort(array, middle + 1, right);
         merge(array, left, middle, right);
     }
+    delayTime = SDL_GetTicks();
     SDL_Delay(2);
+    *delay += (SDL_GetTicks() - delayTime - 20);
 }
 
 void merge_sort_s(SDL_FRect *array, int size)
 {
     merge_sort(array, 0, size);
+    *thrd_created = false;
 }
 
 void heapify(SDL_FRect *array, int size, int i)
@@ -197,14 +222,16 @@ void heapify(SDL_FRect *array, int size, int i)
     if (left < size && array[left].h > array[largest].h)
     {
         largest = left;
-        iterators[0]=left;
-        iterators[1]=largest;
+        iterators[0] = left;
+        iterators[1] = largest;
+        Delay_Function(2);
     }
     if (right < size && array[right].h > array[largest].h)
     {
         largest = right;
-        iterators[0]=right;
-        iterators[1]=largest;
+        iterators[0] = right;
+        iterators[1] = largest;
+        Delay_Function(2);
     }
     if (largest != i)
     {
@@ -212,28 +239,29 @@ void heapify(SDL_FRect *array, int size, int i)
         array[i].h = array[largest].h;
         array[largest].h = temp;
         heapify(array, size, largest);
+        Delay_Function(2);
     }
-    SDL_Delay(2);
 }
 
 void heap_sort(SDL_FRect *array, int size)
 {
-    //set both iterators to -1
+    // set both iterators to -1
     iterators[0] = -1;
     iterators[1] = -1;
-    
+
     int i;
     for (i = size / 2 - 1; i >= 0; i--)
     {
         heapify(array, size, i);
-        SDL_Delay(2);
+        Delay_Function(2);
     }
     for (i = size - 1; i >= 0; i--)
     {
-        int temp = array[0].h;
+        float temp = array[0].h;
         array[0].h = array[i].h;
         array[i].h = temp;
         heapify(array, i, 0);
-        SDL_Delay(2);
+        Delay_Function(2);
     }
+    *thrd_created = false;
 }

@@ -8,4 +8,10 @@ void selection_sort(SDL_FRect *array, int size);
 void quick_sort(SDL_FRect *array, int size);
 void merge_sort_s(SDL_FRect *array, int size);
 void heap_sort(SDL_FRect *array, int size);
-int globals_exchg(int *iterators);
+typedef enum
+{
+    false,
+    true
+} bool;
+int globals_exchg(int *iterators, bool *is_thrd_created,uint32_t *delay);
+

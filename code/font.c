@@ -98,9 +98,8 @@ void STBTTF_RenderText(SDL_Renderer* renderer, STBTTF_Font* font, float x, float
 			//if(i > 0) x += stbtt_GetCodepointKernAdvance(font->info, text[i - 1], text[i]) * font->scale;
             if(text[i]=='\n')
             {
-                
-                x=0;
-                y+=19;
+                x=10;
+                y+=25;
                 continue;
             }
 			stbtt_packedchar* info = &font->chars[text[i] - 32];
