@@ -85,10 +85,14 @@ void quick_sort(SDL_FRect *array, int size)
         while (array[i].h < pivot)
         {
             i++;
+            iterators[0]=i;
+            iterators[1]=size/2;
             SDL_Delay(2);
         }
         while (array[j].h > pivot)
         {
+            iterators[0]=j;
+            iterators[1]=size/2;
             j--;
             SDL_Delay(2);
         }
@@ -129,6 +133,8 @@ void merge(SDL_FRect *array, int left, int middle, int right)
     k = left;
     while (i < n1 && j < n2)
     {
+        iterators[0]=i;
+        iterators[1]=j;
         if (left_array[i].h <= right_array[j].h)
         {
             array[k].h = left_array[i].h;
@@ -170,7 +176,7 @@ void merge_sort(SDL_FRect *array, int left, int right)
     
     if (left < right)
     {
-        int middle = left + (right - left) / 2;
+        int middle = (left+right) / 2;
         merge_sort(array, left, middle);
         merge_sort(array, middle + 1, right);
         merge(array, left, middle, right);
@@ -191,17 +197,20 @@ void heapify(SDL_FRect *array, int size, int i)
     if (left < size && array[left].h > array[largest].h)
     {
         largest = left;
+        iterators[0]=left;
+        iterators[1]=largest;
     }
     if (right < size && array[right].h > array[largest].h)
     {
         largest = right;
+        iterators[0]=right;
+        iterators[1]=largest;
     }
     if (largest != i)
     {
         int temp = array[i].h;
         array[i].h = array[largest].h;
         array[largest].h = temp;
-
         heapify(array, size, largest);
     }
     SDL_Delay(2);
