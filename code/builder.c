@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
-#ifdef _MSC_VER
+#ifdef _WIN32   //under windows 2 compilers MSVC and GNU GCC
+#ifdef _MSC_VER 
 const char *pwsh_string = "if(!(Test-Path(\"..\\bin\")))\n\
 {\n\
         New-Item -Itemtype Directory \"..\\bin\"\n\
@@ -42,6 +42,7 @@ if(!(Test-Path(\"SDL2.dll\")))\n\
 }\n\
 cl  $source_name /Fe$executable_name $compiler_flags /I$include_path /link /LIBPATH:$lib_path $libraries /NODEFAULTLIB:msvcrt.lib /SUBSYSTEM:CONSOLE\n\
 ./sort_viz.exe";
+
 #elif __GNUC__
 const char *gcc_win_str = "#download sdl2 for gcc\n\
 if(!(Test-Path(\"..\\gcc\")))\n\
@@ -84,10 +85,10 @@ $lib_path =\"..\\gcc\\lib\\\"\n\
 $include_path =\"..\\gcc\\include\"\n\
 #gcc compiler flags\n\
 gcc -o $executable_name $source_name -I$include_path -L$lib_path -lmingw32 -lSDL2main -lSDL2\n";
-#endif
-#elif __linux__
-const char *bash_string = "# build script fors SDL in bash using gcc\n\
-#!/bin/bash\n\
+#endif //end of compilers for windows
+#elif __linux__  //only gcc for linux
+const char *bash_string = "#!/bin/bash\n\
+# build script fors SDL in bash using gcc\n\
 if [ ! -d \"../bin\" ]; then\n\
   mkdir \"../bin\"\n\
 fi\n\
@@ -118,120 +119,6 @@ gcc  $source_name -w -lm -lSDL2 -o $executable_name\n\
 #endif
 int main()
 {
-    // open sorts.h and list all function names present there
-    char *data;
-    FILE *sortsh;
-    sortsh = fopen("../code/sorts.h", "r");
-    // allocate array size equal to number of characters needed to store all function names
-    long fsize;
-    fseek(sortsh, 0L, SEEK_END);
-    fsize = ftell(sortsh);
-    fseek(sortsh, 0L, SEEK_SET);
-    int i = 0;
-    data = (char *)malloc(fsize + 100);
-    memset(data, 0, fsize + 100);
-
-    char c;
-    int rows = 0;
-    while ((c = fgetc(sortsh)) != EOF)
-    {
-        if (c == 'v')
-        {
-            c = fgetc(sortsh);
-            if (c == 'o')
-            {
-                c = fgetc(sortsh);
-                if (c == 'i')
-                {
-                    c = fgetc(sortsh);
-                    if (c == 'd')
-                    {
-                        c = fgetc(sortsh);
-                        if (c == ' ')
-                        {
-                            i += sprintf(data + i, "%d.", rows);
-                            rows++;
-                            while ((c = fgetc(sortsh)) != '(')
-                            {
-                                data[i] = c;
-                                i++;
-                            }
-                            data[i] = '\n';
-                            i++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    fclose(sortsh);
-
-    char **functions = malloc(rows * sizeof(char *));
-    for (int i = 0; i < rows; i++)
-    {
-        functions[i] = malloc(100 * sizeof(char));
-    }
-    int j = 0;
-    int k = 0;
-    for (int i = 0; i < strlen(data); i++)
-    {
-        if (data[i] == '.')
-        {
-            for (k = 0; data[i + 1] != '\n'; i++, k++)
-            {
-                functions[j][k] = data[i + 1];
-            }
-            functions[j][k] = '\0';
-            j++;
-        }
-    }
-
-    fsize = 0;
-    int final_index = 0;
-    long main_fsize = 0;
-    FILE *finalptr = fopen("../code/main.c", "w");
-    FILE *mainptr = fopen("../misc/main.c", "r");
-    char *main_data;
-    fseek(mainptr, 0L, SEEK_END);
-    main_fsize = ftell(mainptr);
-    fseek(mainptr, 0L, SEEK_SET);
-    main_data = malloc(main_fsize+1 );
-    memset(main_data, 0, main_fsize+1);
-    fread(main_data, 1, main_fsize, mainptr);
-    fclose(mainptr);
-    main_data[main_fsize] = '\0';
-    fsize += strlen(data);
-    fsize += strlen(main_data);
-    for (int i = 0; i < rows; i++)
-    {
-        fsize += strlen(functions[i]);
-    }
-    fsize += rows * strlen("case SDL_SCANCODE_0:\ncase SDL_SCANCODE_KP_0:\nbreak;\n");
-    fsize += strlen("int32_t switch_function(void *keycode)\n{\nSDL_Scancode key=*((SDL_Scancode *)keycode);\nswitch (key)\n\n{\ndefault:\nbreak;\n}\nthread_created=false\nreturn 0;\n}\n");
-    char *final_str = malloc(fsize + 1000);
-    memset(final_str, 0, fsize + 1000);
-    final_index += sprintf(final_str, "const char *display_str=\"");
-    for (int i = 0; i < rows; i++)
-    {
-        final_index += sprintf(final_str + final_index, "%d.%s\\n", i, functions[i]);
-    }
-    final_index += sprintf(final_str + final_index, "\";\n");
-    final_index+= sprintf(final_str+final_index,"const char *strs[]={");
-    for (int i = 0; i < rows; i++)
-    {
-        final_index+=sprintf(final_str+final_index,"\"%s\",",functions[i]);
-    }
-    final_index+= sprintf(final_str+final_index,"};\n");
-    final_index += snprintf(final_str + final_index,main_fsize,"%s", main_data);
-    final_index += sprintf(final_str + final_index, "\nint32_t switch_function(void *keycode)\n{\nSDL_Scancode key=*((SDL_Scancode *)keycode);\nswitch (key)\n\n{\n");
-    for (int i = 0; i < rows; i++)
-    {
-        final_index += sprintf(final_str + final_index, "case SDL_SCANCODE_%d:\ncase SDL_SCANCODE_KP_%d:\n%s(sRects, RECT_COUNT);\nbreak;\n", i, i, functions[i]);
-    }
-    final_index += sprintf(final_str + final_index, "default:\nbreak;\n}\nthread_created=false;\nreturn 0;\n}\n");
-    final_str[final_index] = '\0';
-    fwrite(final_str, 1, final_index - 1, finalptr);
-    fclose(finalptr);
 
 #ifdef _WIN32
 // for msvc compiler
